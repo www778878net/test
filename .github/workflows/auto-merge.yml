@@ -1,4 +1,4 @@
-name: Auto Merge Develop to Main and Publish to NPM
+name: Auto Merge Develop to Main
 
 on:
   push:
@@ -24,34 +24,14 @@ jobs:
           echo "NEW_COMMITS:$NEW_COMMITS"
           echo "NEW_COMMITS=$NEW_COMMITS" >> $GITHUB_OUTPUT
 
-      - name: Check version number
-        id: check-version
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          PRE_RELEASE_TAG=$(node -p "require('./package.json').version.split('-')[1] || ''")
-          echo "VERSION:$VERSION"  
-          echo "PRE_RELEASE_TAG:$PRE_RELEASE_TAG"  
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          echo "PRE_RELEASE_TAG=$PRE_RELEASE_TAG" >> $GITHUB_OUTPUT
-
-      - name: Get Author Information
-        id: get-author
-        run: |
-          AUTHOR=$(node -p "require('./package.json').author")
-          AUTHOR_NAME=$(node -p "typeof require('./package.json').author === 'object' ? require('./package.json').author.name : require('./package.json').author")
-          AUTHOR_EMAIL=$(node -p "typeof require('./package.json').author === 'object' ? require('./package.json').author.email : ''")
-          echo "AUTHOR_NAME:$AUTHOR_NAME"
-          echo "AUTHOR_EMAIL:$AUTHOR_EMAIL"
-          echo "AUTHOR_NAME=$AUTHOR_NAME" >> $GITHUB_OUTPUT
-          echo "AUTHOR_EMAIL=$AUTHOR_EMAIL" >> $GITHUB_OUTPUT
-
-      - name: Check for new tags
-        id: check-tags
-        run: |
           # 确保标签已存在于远程仓库
           NEW_TAGS=$(git ls-remote --tags origin | awk '{print $2}' | grep -E "^v1\.0\.[0-9]+$")
           echo "NEW_TAGS:$NEW_TAGS"
           echo "NEW_TAGS=$NEW_TAGS" >> $GITHUB_OUTPUT
+
+          # 打印日志
+          echo "Fetching main branch completed."
+          echo "Checking for new tags completed."
 
       - name: Merge develop into main with squash
         if: steps.check-main-and-tags.outputs.NEW_TAGS != ''
@@ -64,3 +44,7 @@ jobs:
           SECOND_TO_LAST_COMMIT_MESSAGE=$(git log --pretty=format:'%B' -n 2 develop | tail -n +2 | tr -d '\n')
           git commit -m "$SECOND_TO_LAST_COMMIT_MESSAGE"
           git push origin main
+
+          # 打印日志
+          echo "Merging develop into main with squash completed."
+          echo "Commit message used: $SECOND_TO_LAST_COMMIT_MESSAGE"
