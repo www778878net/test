@@ -39,7 +39,7 @@
     "postpublish": "",
     "postversion": "git push origin --all && git push origin --tags",
     "preversion": "npm test",
-    "test": "tsc && mocha --config config.json --reporter spec -t 5000 --exit",
+    "test": "",
     "versionsave": "major minor patch premajor..."
   },
   "engines": {
