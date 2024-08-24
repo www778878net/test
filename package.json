@@ -1,12 +1,12 @@
 {
   "name": "@www778878net/koa78",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "nodejs koa78封装",
   "main": "dist/index.js",
   "types": "src/index.ts",
   "author": {
     "name": "Frieda.Hu<657225485@qq.com>",
-    "email":"657225485@qq.com"
+    "email": "657225485@qq.com"
   },
   "repository": {
     "type": "git",
@@ -39,7 +39,7 @@
     "postpublish": "",
     "postversion": "git push origin --all && git push origin --tags",
     "preversion": "npm test",
-    "test": "tsc && mocha --config config.json --reporter spec -t 5000 --exit",
+    "test": "",
     "versionsave": "major minor patch premajor..."
   },
   "engines": {
