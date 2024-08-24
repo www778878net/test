@@ -24,8 +24,12 @@ jobs:
           echo "NEW_COMMITS:$NEW_COMMITS"
           echo "NEW_COMMITS=$NEW_COMMITS" >> $GITHUB_OUTPUT
 
+          # 列出所有以 v1.0 开头的标签
+          ALL_TAGS=$(git ls-remote --tags origin | awk '{print $2}')
+          echo "ALL_TAGS:$ALL_TAGS"
+
           # 确保标签已存在于远程仓库
-          NEW_TAGS=$(git ls-remote --tags origin | awk '{print $2}' | grep -E "^v[0-9]\.[0-9]\.[0-9]+$")
+          NEW_TAGS=$(echo "$ALL_TAGS" | grep -E "^v3\.")
           echo "NEW_TAGS:$NEW_TAGS"
           echo "NEW_TAGS=$NEW_TAGS" >> $GITHUB_OUTPUT
 
