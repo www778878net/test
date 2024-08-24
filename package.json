@@ -1,6 +1,6 @@
 {
   "name": "@www778878net/koa78",
-  "version": "1.0.9",
+  "version": "1.0.7",
   "description": "nodejs koa78封装",
   "main": "dist/index.js",
   "types": "src/index.ts",
