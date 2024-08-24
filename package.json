@@ -39,8 +39,9 @@
     "postpublish": "",
     "postversion": "git pull  &&  git push origin --all && git push origin --tags",
     "preversion": "npm test",
-    "test": "",
-    "versionsave": "major minor patch premajor..."
+    "test": "",    
+    "versionsave": "major minor patch premajor...",
+    "mainupdate":"git checkout main && git pull origin main && git merge develop --squash --no-commit"
   },
   "engines": {
     "node": ">=14.0.0"
