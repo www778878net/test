@@ -24,12 +24,8 @@ jobs:
           echo "NEW_COMMITS:$NEW_COMMITS"
           echo "NEW_COMMITS=$NEW_COMMITS" >> $GITHUB_OUTPUT
 
-          # 列出所有以 v1.0 开头的标签
-          ALL_TAGS=$(git ls-remote --tags origin | awk '{print $2}')
-          echo "ALL_TAGS:$ALL_TAGS"
-
-          # 确保标签已存在于远程仓库
-          NEW_TAGS=$(echo "$ALL_TAGS" | grep -E "^v3\.")
+          # 检查是否有新的标签
+          NEW_TAGS=$(git ls-remote --tags origin | awk '{print $2}' | wc -l)
           echo "NEW_TAGS:$NEW_TAGS"
           echo "NEW_TAGS=$NEW_TAGS" >> $GITHUB_OUTPUT
 
@@ -38,7 +34,7 @@ jobs:
           echo "Checking for new tags completed."
 
       - name: Merge develop into main with squash
-        if: steps.check-main-and-tags.outputs.NEW_TAGS != ''
+        if: steps.check-main-and-tags.outputs.NEW_TAGS != '0'
         run: |
           git config --global user.email "657225485@qq.com"
           git config --global user.name "Frieda.Hu<657225485@qq.com>"
