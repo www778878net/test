@@ -1,0 +1,80 @@
+name: Auto Merge Develop to Master and Publish to NPM
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  auto-merge-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          ref: develop
+          fetch-depth: 0 # 获取完整历史记录
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.8.1 # 设置 Node.js 版本为 20.8.1
+
+      - name: Fetch master branch
+        run: |
+          git fetch origin master
+          NEW_COMMITS=$(git rev-list --count origin/master..develop)
+          echo "NEW_COMMITS:$NEW_COMMITS"
+          echo "NEW_COMMITS=$NEW_COMMITS" >> $GITHUB_OUTPUT
+
+      - name: Check version number
+        id: check-version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          PRE_RELEASE_TAG=$(node -p "require('./package.json').version.split('-')[1] || ''")
+          echo "VERSION:$VERSION"  
+          echo "PRE_RELEASE_TAG:$PRE_RELEASE_TAG"  
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "PRE_RELEASE_TAG=$PRE_RELEASE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Get Author Information
+        id: get-author
+        run: |
+          AUTHOR=$(node -p "require('./package.json').author")
+          AUTHOR_NAME=$(node -p "typeof require('./package.json').author === 'object' ? require('./package.json').author.name : require('./package.json').author")
+          AUTHOR_EMAIL=$(node -p "typeof require('./package.json').author === 'object' ? require('./package.json').author.email : ''")
+          echo "AUTHOR_NAME:$AUTHOR_NAME"
+          echo "AUTHOR_EMAIL:$AUTHOR_EMAIL"
+          echo "AUTHOR_NAME=$AUTHOR_NAME" >> $GITHUB_OUTPUT
+          echo "AUTHOR_EMAIL=$AUTHOR_EMAIL" >> $GITHUB_OUTPUT
+
+      - name: Get second-to-last commit message from develop
+        id: get-second-to-last-commit-message
+        if: steps.check-version.outputs.PRE_RELEASE_TAG == ''
+        run: |
+          # 获取倒数第二个提交的信息，并去除换行符
+          SECOND_TO_LAST_COMMIT_MESSAGE=$(git log --pretty=format:'%B' -n 2 develop | tail -n +2 | tr -d '\n')
+          echo "SECOND_TO_LAST_COMMIT_MESSAGE:$SECOND_TO_LAST_COMMIT_MESSAGE"
+          echo "SECOND_TO_LAST_COMMIT_MESSAGE=$SECOND_TO_LAST_COMMIT_MESSAGE" >> $GITHUB_OUTPUT
+
+      - name: Merge develop into master with squash
+        if: steps.check-version.outputs.PRE_RELEASE_TAG == ''
+        run: |
+          git config --global user.email "${{ steps.get-author.outputs.AUTHOR_EMAIL }}"
+          git config --global user.name "${{ steps.get-author.outputs.AUTHOR_NAME }}"
+          git checkout master
+          git merge develop --squash
+          git commit -m "${{ steps.get-second-to-last-commit-message.outputs.SECOND_TO_LAST_COMMIT_MESSAGE }}"
+          git push origin master
+          
+      - name: Pull latest changes from remote master
+        if: steps.check-version.outputs.PRE_RELEASE_TAG == ''
+        run: |
+          git checkout master
+          git pull origin master --ff-only
+          
+      - name: Push to remote master after pulling
+        if: steps.check-version.outputs.PRE_RELEASE_TAG == ''
+        run: |
+          git push origin master
