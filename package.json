@@ -37,7 +37,7 @@
     "startpm": "cd /koa78; pm2 start ./dist/index.js --name koa78 -i 2 -- config configali.json",
     "reloadpm": "cd /koa78; git pull -p; pm2 reload koa78;",
     "postpublish": "",
-    "postversion": "git pull master && git push origin --all && git push origin --tags && git pull origin develop",
+    "postversion": "git pull main && git push origin --all && git push origin --tags && git pull origin develop",
     "preversion": "npm test",
     "test": "",
     "versionsave": "major minor patch premajor..."
