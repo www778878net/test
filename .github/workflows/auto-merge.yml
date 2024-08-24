@@ -1,4 +1,4 @@
-name: Auto Merge Develop to Main and Publish to NPM
+name: Auto Merge Develop to Main
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - develop
 
 jobs:
-  auto-merge-and-publish:
+  auto-merge:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,28 +16,21 @@ jobs:
           ref: develop
           fetch-depth: 0 # 获取完整历史记录
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20.8.1 # 设置 Node.js 版本为 20.8.1
-
-      - name: Fetch main branch
+      - name: Fetch main branch and check for new tags
+        id: check-main-and-tags
         run: |
           git fetch origin main
           NEW_COMMITS=$(git rev-list --count origin/main..develop)
           echo "NEW_COMMITS:$NEW_COMMITS"
           echo "NEW_COMMITS=$NEW_COMMITS" >> $GITHUB_OUTPUT
 
-      - name: Check for new tags
-        id: check-tags
-        run: |
           # 确保标签已存在于远程仓库
           NEW_TAGS=$(git ls-remote --tags origin | awk '{print $2}' | grep -E "^v1\.0\.[0-9]+$")
           echo "NEW_TAGS:$NEW_TAGS"
           echo "NEW_TAGS=$NEW_TAGS" >> $GITHUB_OUTPUT
 
       - name: Merge develop into main with squash
-        if: steps.check-tags.outputs.NEW_TAGS != ''
+        if: steps.check-main-and-tags.outputs.NEW_TAGS != ''
         run: |
           git config --global user.email "657225485@qq.com"
           git config --global user.name "Frieda.Hu<657225485@qq.com>"
