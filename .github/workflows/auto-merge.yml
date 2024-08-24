@@ -1,4 +1,4 @@
-name: Auto Merge Develop to main and Publish to NPM
+name: Auto Merge Develop to Main and Publish to NPM
 
 on:
   push:
@@ -52,7 +52,8 @@ jobs:
       - name: Check for new tags
         id: check-tags
         run: |
-          NEW_TAGS=$(git tag --points-at develop)
+          # 确保标签已存在于远程仓库
+          NEW_TAGS=$(git ls-remote --tags origin | awk '{print $2}' | grep -E "^v1\.0\.[0-9]+$")
           echo "NEW_TAGS:$NEW_TAGS"
           echo "NEW_TAGS=$NEW_TAGS" >> $GITHUB_OUTPUT
 
